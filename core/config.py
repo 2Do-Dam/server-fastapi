@@ -14,6 +14,9 @@ class Settings(BaseSettings):
     JWT_SECRET_KEY: str
     JWT_ALGORITHM: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int  # ← str → int로 변경!
+    REDIS_URL: str
+    EMAIL_SENDER: str
+    EMAIL_APP_PASSWORD: str
     # 필요한 필드만 추가
 
     model_config = {

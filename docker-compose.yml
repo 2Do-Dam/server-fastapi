@@ -1,0 +1,14 @@
+services:
+  fastapi:
+    build: .
+    env_file:
+      - .env
+    depends_on:
+      - redis
+    ports:
+      - "8000:8000"
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"

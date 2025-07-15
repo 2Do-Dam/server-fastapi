@@ -6,8 +6,10 @@ pydantic
 pydantic-settings
 python-jose[cryptography]
 passlib[bcrypt]
-openai
+openai==0.28.1
 requests
 email-validator
 starlette
 httpx
+redis
+anyio
