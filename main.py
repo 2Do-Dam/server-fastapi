@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from api.v1.auth import router as auth_router
 from api.v1.users import router as users_router
 from api.v1.contents import router as contents_router
@@ -10,6 +11,14 @@ from api.v1.feedback import router as feedback_router
 import uvicorn
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000", "http://localhost:8000", "calyx-client-git-main-hxmxxs-projects.vercel.app"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.include_router(auth_router, prefix="/auth")
 app.include_router(users_router, prefix="/api/users")
