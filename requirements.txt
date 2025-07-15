@@ -7,3 +7,4 @@ python-jose[cryptography]
 passlib[bcrypt]
 openai
 requests 
+email-validator
