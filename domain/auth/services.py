@@ -9,38 +9,16 @@ from sqlalchemy.orm import Session
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-def register_user(user: UserRegisterRequest, db: Session) -> AuthResponse:
-    # 이메일 중복 체크
-    existing = db.query(UserModel).filter(UserModel.email == user.email).first()
-    if existing:
-        raise HTTPException(status_code=400, detail="이미 가입된 이메일입니다.")
-    hashed_pw = pwd_context.hash(user.password)
-    user_id = uuid4()
-    db_user = UserModel(
-        id=user_id,
-        email=user.email,
-        name=user.name,
-        role=user.role,
-        profile_image=None,
-        created_at=datetime.utcnow(),
-        is_deleted=False
-    )
-    db.add(db_user)
+def update_user_profile(user_id: str, profile, db: Session):
+    user = db.query(UserModel).filter(UserModel.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="사용자를 찾을 수 없습니다.")
+    user.name = profile.name
+    user.nickname = profile.nickname
+    user.role = profile.role
     db.commit()
-    db.refresh(db_user)
-    token = create_access_token({"sub": str(db_user.id)})
-    return AuthResponse(
-        access_token=token,
-        token_type="bearer",
-        user=UserInfo(
-            id=db_user.id,
-            email=db_user.email,
-            name=db_user.name,
-            nickname=user.nickname,
-            role=db_user.role,
-            created_at=db_user.created_at
-        )
-    )
+    db.refresh(user)
+    return user
 
 def login_user(user: UserLoginRequest, db: Session) -> AuthResponse:
     db_user = db.query(UserModel).filter(UserModel.email == user.email).first()
@@ -96,6 +74,7 @@ def google_login_user(req: GoogleLoginRequest, db: Session) -> GoogleLoginRespon
             role="youtuber",
             created_at=datetime.utcnow(),
             is_deleted=False
+            # password_hash=None (구글 로그인은 비밀번호 없음)
         )
         db.add(user)
         db.commit()
@@ -107,3 +86,28 @@ def google_login_user(req: GoogleLoginRequest, db: Session) -> GoogleLoginRespon
         token_type="bearer",
         user=UserInfo.from_orm(user)
     )
+
+def create_verified_user(email: str, password: str, db: Session):
+    from domain.users.models import User as UserModel
+    from uuid import uuid4
+    from datetime import datetime
+    from passlib.context import CryptContext
+    pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+    # 이메일 중복 체크
+    existing = db.query(UserModel).filter(UserModel.email == email).first()
+    if existing:
+        raise HTTPException(status_code=400, detail="이미 가입된 이메일입니다.")
+    hashed_pw = pwd_context.hash(password)
+    user_id = uuid4()
+    db_user = UserModel(
+        id=user_id,
+        email=email,
+        password_hash=hashed_pw,
+        # name, nickname, role은 이후에 업데이트
+        created_at=datetime.utcnow(),
+        is_deleted=False
+    )
+    db.add(db_user)
+    db.commit()
+    db.refresh(db_user)
+    return db_user

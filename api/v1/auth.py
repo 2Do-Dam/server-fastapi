@@ -1,15 +1,11 @@
 from fastapi import APIRouter, Depends
 from domain.auth.schemas import UserRegisterRequest, UserLoginRequest, AuthResponse, GoogleLoginRequest, GoogleLoginResponse, LogoutResponse
 from infrastructure.security import get_current_user
-from domain.auth.services import register_user, login_user, logout_user, google_login_user
+from domain.auth.services import login_user, logout_user, google_login_user
 from infrastructure.database import get_db
 from sqlalchemy.orm import Session
 
 router = APIRouter()
-
-@router.post("/register", response_model=AuthResponse)
-def register(user: UserRegisterRequest, db: Session = Depends(get_db)):
-    return register_user(user, db)
 
 @router.post("/login", response_model=AuthResponse)
 def login(user: UserLoginRequest, db: Session = Depends(get_db)):

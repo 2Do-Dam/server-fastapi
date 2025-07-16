@@ -9,6 +9,8 @@ class User(Base):
     id = Column(PG_UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     email = Column(String, unique=True, nullable=False)
     name = Column(String)
+    nickname = Column(String, nullable=True)
+    password_hash = Column(String, nullable=True)
     role = Column(String, default="youtuber")
     profile_image = Column(String, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)

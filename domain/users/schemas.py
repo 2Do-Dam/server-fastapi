@@ -6,6 +6,7 @@ from datetime import datetime
 class UserBase(BaseModel):
     email: EmailStr
     name: str
+    nickname: Optional[str] = None
     role: Optional[str] = "youtuber"
     profile_image: Optional[str] = None
 
