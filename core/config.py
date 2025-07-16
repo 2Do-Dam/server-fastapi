@@ -1,4 +1,5 @@
 import os
+from typing import List
 from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
@@ -17,7 +18,7 @@ class Settings(BaseSettings):
     REDIS_URL: str
     EMAIL_SENDER: str
     EMAIL_APP_PASSWORD: str
-    CORS_ALLOWED_ORIGINS: list[str]
+    CORS_ALLOWED_ORIGINS: List[str]
     # 필요한 필드만 추가
 
     model_config = {
