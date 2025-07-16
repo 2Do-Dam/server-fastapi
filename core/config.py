@@ -17,6 +17,7 @@ class Settings(BaseSettings):
     REDIS_URL: str
     EMAIL_SENDER: str
     EMAIL_APP_PASSWORD: str
+    CORS_ALLOWED_ORIGINS: list[str]
     # 필요한 필드만 추가
 
     model_config = {

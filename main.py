@@ -8,13 +8,14 @@ from api.v1.planner import router as planner_router
 from api.v1.hashtags import router as hashtags_router
 from api.v1.title import router as title_router
 from api.v1.feedback import router as feedback_router
+from core.config import settings
 import uvicorn
 
 app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:8000", "calyx-client-git-main-hxmxxs-projects.vercel.app"],
+    allow_origins=settings.CORS_ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
