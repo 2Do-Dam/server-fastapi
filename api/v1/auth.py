@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends
-from domain.auth.schemas import UserRegisterRequest, UserLoginRequest, AuthResponse, GoogleLoginRequest, GoogleLoginResponse, LogoutResponse
+from domain.auth.schemas import UserLoginRequest, AuthResponse, GoogleLoginRequest, GoogleLoginResponse, LogoutResponse
 from infrastructure.security import get_current_user
 from domain.auth.services import login_user, logout_user, google_login_user
 from infrastructure.database import get_db

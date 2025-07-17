@@ -19,8 +19,8 @@ from domain.auth.schemas import UserProfileUpdateRequest, UserRegisterRequest, U
 from domain.auth.services import update_user_profile, create_verified_user, create_access_token
 
 # 이메일 전송 함수
-EMAIL_SENDER = settings.EMAIL_SENDER  # 실제 이메일로 변경 필요
-EMAIL_APP_PASSWORD = settings.EMAIL_APP_PASSWORD  # 실제 앱 비밀번호로 변경 필요
+EMAIL_SENDER = settings.EMAIL_SENDER  
+EMAIL_APP_PASSWORD = settings.EMAIL_APP_PASSWORD
 def send_email(to_email, code):
     smtp = smtplib.SMTP('smtp.gmail.com', 587)
     smtp.starttls()

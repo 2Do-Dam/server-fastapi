@@ -33,5 +33,6 @@ class GoogleLoginResponse(BaseModel):
 class LogoutResponse(BaseModel):
     message: str
 class AuthResponse(BaseModel):
+    access_token: str
     token_type: str
     user: UserInfo
