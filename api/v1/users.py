@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, BackgroundTasks, HTTPException
 from domain.users.schemas import User, UserCreate, UserRoleUpdateRequest, UserProfileUpdateRequest
-from domain.users.services import list_users, create_user, update_user_roles
+from domain.users.services import list_users, create_user, update_user_roles, get_user_by_id
 from domain.auth.schemas import UserRegisterRequest, UserInfo, AuthResponse
 from domain.auth.services import update_user_profile, create_verified_user, create_access_token
 from infrastructure.database import get_db, get_redis
