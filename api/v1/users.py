@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, BackgroundTasks
+from fastapi import APIRouter, Depends, BackgroundTasks, HTTPException
 from domain.users.schemas import User, UserCreate, UserRoleUpdateRequest, UserProfileUpdateRequest
 from domain.users.services import list_users, create_user, update_user_roles
 from domain.auth.schemas import UserRegisterRequest, UserInfo, AuthResponse
@@ -147,29 +147,48 @@ class EmailVerifyRequest(BaseModel):
 def verify_email_code(req: EmailVerifyRequest, redis=Depends(get_redis), db: Session = Depends(get_db)):
     email = req.email
     code = req.code
-    saved_code = redis.get(f"email_code:{email}")
-    if not saved_code:
-        return {"msg": "인증코드가 만료되었거나 없습니다.", "success": False}
-    if saved_code != code:
-        return {"msg": "인증코드가 일치하지 않습니다.", "success": False}
-    # 임시 저장된 회원가입 정보 확인
-    password = redis.get(f"pending_user:{email}")
-    if not password:
-        return {"msg": "회원가입 정보가 만료되었습니다.", "success": False}
-    # DB에 사용자 저장 및 access_token 발급
-    user = create_verified_user(email, password, db)
-    token = create_access_token({"sub": str(user.id)})
-    redis.delete(f"email_code:{email}")
-    redis.delete(f"pending_user:{email}")
-    return AuthResponse(
-        access_token=token,
-        token_type="bearer",
-        user=UserInfo(
-            id=user.id,
-            email=user.email,
-            created_at=user.created_at
+    
+    try:
+        # 인증코드 확인
+        saved_code = redis.get(f"email_code:{email}")
+        if not saved_code:
+            raise HTTPException(status_code=400, detail="인증코드가 만료되었거나 없습니다.")
+        
+        if saved_code.decode('utf-8') != code:
+            raise HTTPException(status_code=400, detail="인증코드가 일치하지 않습니다.")
+        
+        # 임시 저장된 회원가입 정보 확인
+        password = redis.get(f"pending_user:{email}")
+        if not password:
+            raise HTTPException(status_code=400, detail="회원가입 정보가 만료되었습니다.")
+        
+        # DB에 사용자 저장 및 access_token 발급
+        user = create_verified_user(email, password.decode('utf-8'), db)
+        token = create_access_token({"sub": str(user.id)})
+        
+        # Redis에서 임시 데이터 삭제
+        redis.delete(f"email_code:{email}")
+        redis.delete(f"pending_user:{email}")
+        
+        return AuthResponse(
+            access_token=token,
+            token_type="bearer",
+            user=UserInfo(
+                id=user.id,
+                email=user.email,
+                name=user.name,
+                nickname=user.nickname,
+                role=user.role,
+                created_at=user.created_at
+            )
         )
-    )
+        
+    except HTTPException:
+        # HTTPException은 그대로 전파
+        raise
+    except Exception as e:
+        print(f"이메일 인증 중 예상치 못한 오류: {e}")
+        raise HTTPException(status_code=500, detail="이메일 인증 중 오류가 발생했습니다.")
 
 @router.put("/profile")
 def update_profile(req: UserProfileUpdateRequest, db: Session = Depends(get_db), user=Depends(get_current_user)):
@@ -186,8 +205,8 @@ def update_profile(req: UserProfileUpdateRequest, db: Session = Depends(get_db),
 def debug_email_config():
     """이메일 설정 디버깅용 (개발 환경에서만 사용)"""
     return {
-        "email_sender": EMAIL_SENDER if EMAIL_SENDER else "설정되지 않음",
-        "email_app_password": "설정됨" if EMAIL_APP_PASSWORD else "설정되지 않음",
+        "email_sender": settings.EMAIL_SENDER if settings.EMAIL_SENDER else "설정되지 않음",
+        "email_app_password": "설정됨" if settings.EMAIL_APP_PASSWORD else "설정되지 않음",
         "gmail_smtp": "smtp.gmail.com:587",
         "note": "이 엔드포인트는 개발 환경에서만 사용하세요."
     }
