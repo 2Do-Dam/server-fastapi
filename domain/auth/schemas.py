@@ -6,7 +6,7 @@ from datetime import datetime
 class UserRegisterRequest(BaseModel):
     email: EmailStr
     password: str
-    name: str = email.split('@')[0]
+    name: str = ""
     nickname: Optional[str] = None
 
 
@@ -22,7 +22,7 @@ class GoogleLoginRequest(BaseModel):
 class UserInfo(BaseModel):
     id: UUID
     email: EmailStr
-    name: str = ""
+    name: Optional[str] = None
     nickname: Optional[str] = None
     role: Optional[str] = None
     created_at: datetime
