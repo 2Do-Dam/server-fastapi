@@ -20,6 +20,10 @@ def create_user(user: UserCreate, db: Session) -> User:
     if existing_user:
         raise HTTPException(status_code=400, detail="이미 존재하는 이메일입니다.")
     
+    # 기본값 설정
+    if not user.name:
+        user.name = user.email.split('@')[0]  # 이메일 앞부분을 기본 이름으로
+    
     db_user = user_repo.create_user(user)
     return User.model_validate(db_user)
 

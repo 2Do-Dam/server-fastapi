@@ -89,7 +89,7 @@ def google_login_user(req: GoogleLoginRequest, db: Session) -> GoogleLoginRespon
         user=UserInfo.model_validate(user)
     )
 
-def create_verified_user(email: str, password: str, db: Session):
+def create_verified_user(email: str, password: str, name: str = None, nickname: str = None, db: Session = None):
     from domain.users.models import User as UserModel
     from uuid import uuid4
     from datetime import datetime
@@ -101,11 +101,20 @@ def create_verified_user(email: str, password: str, db: Session):
         raise HTTPException(status_code=400, detail="이미 가입된 이메일입니다.")
     hashed_pw = pwd_context.hash(password)
     user_id = uuid4()
+    
+    # 이름과 닉네임 설정 (클라이언트에서 받은 값 또는 기본값)
+    if not name:
+        name = email.split('@')[0]  # 이메일 앞부분을 기본 이름으로
+    if not nickname:
+        nickname = name  # 이름과 동일하게 설정
+    
     db_user = UserModel(
         id=user_id,
         email=email,
+        name=name,
+        nickname=nickname,
+        role="youtuber",  # 기본 역할 설정
         password_hash=hashed_pw,
-        # name, nickname, role은 이후에 업데이트
         created_at=datetime.utcnow(),
         is_deleted=False
     )

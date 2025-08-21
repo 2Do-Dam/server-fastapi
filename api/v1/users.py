@@ -167,13 +167,22 @@ def send_email_code(req: EmailRequest, background_tasks: BackgroundTasks, redis=
             "error": str(e)
         }
 
-# 회원가입: 이메일, 비밀번호만 받고 DB에는 저장하지 않음
+# 회원가입: 이메일, 비밀번호, 이름, 닉네임을 받고 Redis에 임시 저장
 @router.post("/register")
 def register(user: UserRegisterRequest, redis=Depends(get_redis)):
     # 이메일 중복 체크 (임시로 redis에 저장)
     if redis.get(f"pending_user:{user.email}"):
         return {"msg": "이미 인증 대기 중인 이메일입니다.", "success": False}
-    redis.setex(f"pending_user:{user.email}", 600, user.password)  # 10분간 임시 저장
+    
+    # 사용자 정보를 JSON 형태로 Redis에 저장
+    import json
+    user_data = {
+        "password": user.password,
+        "name": user.name,
+        "nickname": user.nickname
+    }
+    redis.setex(f"pending_user:{user.email}", 600, json.dumps(user_data))  # 10분간 임시 저장
+    
     return {"msg": "이메일 인증을 진행하세요.", "success": True}
 
 class EmailVerifyRequest(BaseModel):
@@ -206,22 +215,34 @@ def verify_email_code(req: EmailVerifyRequest, redis=Depends(get_redis), db: Ses
             raise HTTPException(status_code=400, detail="인증코드가 일치하지 않습니다.")
         
         # 임시 저장된 회원가입 정보 확인
-        password = redis.get(f"pending_user:{email}")
-        if not password:
+        user_data_raw = redis.get(f"pending_user:{email}")
+        if not user_data_raw:
             raise HTTPException(status_code=400, detail="회원가입 정보가 만료되었습니다.")
         
         # Redis 데이터 타입 확인 및 변환
-        if isinstance(password, bytes):
-            password = password.decode('utf-8')
-        elif isinstance(password, str):
-            password = password
+        if isinstance(user_data_raw, bytes):
+            user_data_raw = user_data_raw.decode('utf-8')
+        elif isinstance(user_data_raw, str):
+            user_data_raw = user_data_raw
         else:
-            password = str(password)
+            user_data_raw = str(user_data_raw)
+        
+        # JSON 파싱
+        import json
+        try:
+            user_data = json.loads(user_data_raw)
+            password = user_data.get("password")
+            name = user_data.get("name")
+            nickname = user_data.get("nickname")
+        except json.JSONDecodeError:
+            raise HTTPException(status_code=400, detail="저장된 회원가입 정보가 손상되었습니다.")
         
         print(f"저장된 비밀번호: {password[:3]}***")
+        print(f"저장된 이름: {name}")
+        print(f"저장된 닉네임: {nickname}")
         
         # DB에 사용자 저장 및 access_token 발급
-        user = create_verified_user(email, password, db)
+        user = create_verified_user(email, password, name, nickname, db)
         token = create_access_token({"sub": str(user.id)})
         
         # Redis에서 임시 데이터 삭제

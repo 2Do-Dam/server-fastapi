@@ -5,7 +5,7 @@ from datetime import datetime
 
 class UserBase(BaseModel):
     email: EmailStr
-    name: str
+    name: Optional[str] = None
     nickname: Optional[str] = None
     role: Optional[str] = "youtuber"
     profile_image: Optional[str] = None
@@ -22,8 +22,8 @@ class User(UserBase):
         from_attributes = True
 
 class UserProfileUpdateRequest(BaseModel):
-    name: str
-    nickname: str
+    name: Optional[str] = None
+    nickname: Optional[str] = None
     role: Optional[str] = "youtuber"
 
 class UserRoleUpdateRequest(BaseModel):

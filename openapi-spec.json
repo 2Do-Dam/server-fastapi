@@ -1335,7 +1335,7 @@
       },
       "UserCreate": {
         "type": "object",
-        "required": ["email", "name", "password"],
+        "required": ["email", "password"],
         "properties": {
           "email": {
             "type": "string",
@@ -1373,7 +1373,7 @@
       },
       "UserProfileUpdateRequest": {
         "type": "object",
-        "required": ["name", "nickname"],
+        "required": [],
         "properties": {
           "name": {
             "type": "string"
@@ -1397,6 +1397,14 @@
           },
           "password": {
             "type": "string"
+          },
+          "name": {
+            "type": "string",
+            "description": "사용자 이름 (선택사항)"
+          },
+          "nickname": {
+            "type": "string",
+            "description": "사용자 닉네임 (선택사항)"
           }
         }
       },
