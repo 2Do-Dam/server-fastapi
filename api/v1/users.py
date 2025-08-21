@@ -1,22 +1,17 @@
-from fastapi import APIRouter
-from domain.users.schemas import User, UserCreate
-from typing import List
-from domain.users.services import list_users, create_user
-from domain.users.schemas import UserRoleUpdateRequest
-from domain.users.services import update_user_roles
-from infrastructure.database import get_db
+from fastapi import APIRouter, Depends, BackgroundTasks
+from domain.users.schemas import User, UserCreate, UserRoleUpdateRequest, UserProfileUpdateRequest
+from domain.users.services import list_users, create_user, update_user_roles
+from domain.auth.schemas import UserRegisterRequest, UserInfo, AuthResponse
+from domain.auth.services import update_user_profile, create_verified_user, create_access_token
+from infrastructure.database import get_db, get_redis
 from infrastructure.security import get_current_user
 from sqlalchemy.orm import Session
-from fastapi import Depends
-from fastapi import BackgroundTasks
-from infrastructure.database import get_redis
+from pydantic import BaseModel, EmailStr
+from core.config import settings
+from typing import List
 import random, time
 import smtplib
 from email.mime.text import MIMEText
-from core.config import settings
-from pydantic import BaseModel, EmailStr
-from domain.auth.schemas import UserProfileUpdateRequest, UserRegisterRequest, UserInfo, AuthResponse
-from domain.auth.services import update_user_profile, create_verified_user, create_access_token
 
 # 이메일 전송 함수
 EMAIL_SENDER = settings.EMAIL_SENDER  
