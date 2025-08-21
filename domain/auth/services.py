@@ -24,11 +24,12 @@ def login_user(user: UserLoginRequest, db: Session) -> AuthResponse:
     db_user = db.query(UserModel).filter(UserModel.email == user.email).first()
     if not db_user:
         raise HTTPException(status_code=401, detail="이메일 또는 비밀번호가 올바르지 않습니다.")
-    # 비밀번호 검증 (여기서는 profile_image 필드에 임시로 저장했다고 가정)
-    # 실제로는 User 모델에 password_hash 컬럼을 추가해야 함
-    # hashed_pw = db_user.password_hash
-    # if not pwd_context.verify(user.password, hashed_pw):
-    #     raise HTTPException(status_code=401, detail="이메일 또는 비밀번호가 올바르지 않습니다.")
+    # 비밀번호 검증
+    if not db_user.password_hash:
+        raise HTTPException(status_code=401, detail="이메일 또는 비밀번호가 올바르지 않습니다.")
+    
+    if not pwd_context.verify(user.password, db_user.password_hash):
+        raise HTTPException(status_code=401, detail="이메일 또는 비밀번호가 올바르지 않습니다.")
     token = create_access_token({"sub": str(db_user.id)})
     return AuthResponse(
         access_token=token,
@@ -37,7 +38,7 @@ def login_user(user: UserLoginRequest, db: Session) -> AuthResponse:
             id=db_user.id,
             email=db_user.email,
             name=db_user.name,
-            nickname="닉네임",  # 실제 닉네임 필드 필요
+            nickname=db_user.nickname,
             role=db_user.role,
             created_at=db_user.created_at
         )
@@ -84,7 +85,7 @@ def google_login_user(req: GoogleLoginRequest, db: Session) -> GoogleLoginRespon
     return GoogleLoginResponse(
         access_token=token,
         token_type="bearer",
-        user=UserInfo.from_orm(user)
+        user=UserInfo.model_validate(user)
     )
 
 def create_verified_user(email: str, password: str, db: Session):

@@ -35,12 +35,12 @@ def send_email(to_email, code):
 router = APIRouter()
 
 @router.get("/", response_model=List[User])
-def list_users_api():
-    return list_users()
+def list_users_api(db: Session = Depends(get_db)):
+    return list_users(db)
 
 @router.post("/", response_model=User)
-def create_user_api(user: UserCreate):
-    return create_user(user)
+def create_user_api(user: UserCreate, db: Session = Depends(get_db)):
+    return create_user(user, db)
 
 @router.post("/roles")
 def set_roles(req: UserRoleUpdateRequest, db: Session = Depends(get_db), user=Depends(get_current_user)):

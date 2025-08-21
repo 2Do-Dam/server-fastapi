@@ -23,6 +23,9 @@ class GoogleLoginRequest(BaseModel):
 class UserInfo(BaseModel):
     id: UUID
     email: EmailStr
+    name: Optional[str] = None
+    nickname: Optional[str] = None
+    role: Optional[str] = None
     created_at: datetime
 
 class GoogleLoginResponse(BaseModel):

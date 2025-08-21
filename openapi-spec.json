@@ -1,0 +1,1708 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "전공동아리 서버 API",
+    "description": "유튜버를 위한 콘텐츠 계획 및 관리 시스템 API",
+    "version": "1.0.0",
+    "contact": {
+      "name": "API Support",
+      "email": "support@example.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8000",
+      "description": "개발 서버"
+    },
+    {
+      "url": "https://api.example.com",
+      "description": "프로덕션 서버"
+    }
+  ],
+  "paths": {
+    "/": {
+      "get": {
+        "summary": "루트 엔드포인트",
+        "description": "API 서버 상태 확인",
+        "responses": {
+          "200": {
+            "description": "성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Hello World"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "summary": "헬스 체크",
+        "description": "서버 상태 확인",
+        "responses": {
+          "200": {
+            "description": "성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "healthy"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "summary": "사용자 로그인",
+        "description": "이메일과 비밀번호로 사용자 로그인",
+        "tags": ["인증"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserLoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "로그인 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증 실패"
+          }
+        }
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "summary": "사용자 로그아웃",
+        "description": "현재 사용자 로그아웃",
+        "tags": ["인증"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "로그아웃 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LogoutResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/google": {
+      "post": {
+        "summary": "구글 로그인",
+        "description": "구글 ID 토큰으로 로그인",
+        "tags": ["인증"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GoogleLoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "구글 로그인 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GoogleLoginResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users": {
+      "get": {
+        "summary": "사용자 목록 조회",
+        "description": "전체 사용자 목록을 조회합니다",
+        "tags": ["사용자"],
+        "responses": {
+          "200": {
+            "description": "성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/User"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "서버 내부 오류",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "detail": {
+                      "type": "string",
+                      "example": "데이터베이스 연결 오류"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "사용자 생성",
+        "description": "새로운 사용자를 생성합니다",
+        "tags": ["사용자"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "사용자 생성 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "detail": {
+                      "type": "string",
+                      "example": "이미 존재하는 이메일입니다."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "서버 내부 오류",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "detail": {
+                      "type": "string",
+                      "example": "사용자 생성 중 오류가 발생했습니다."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/roles": {
+      "post": {
+        "summary": "사용자 역할 설정",
+        "description": "사용자의 역할을 설정합니다",
+        "tags": ["사용자"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserRoleUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "역할 설정 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "역할이 저장되었습니다."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/send-email-code": {
+      "post": {
+        "summary": "이메일 인증코드 전송",
+        "description": "이메일로 인증코드를 전송합니다",
+        "tags": ["사용자"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmailRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "인증코드 전송 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string",
+                      "example": "인증코드가 전송되었습니다."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/register": {
+      "post": {
+        "summary": "회원가입",
+        "description": "이메일과 비밀번호로 회원가입을 진행합니다",
+        "tags": ["사용자"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserRegisterRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "회원가입 요청 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string",
+                      "example": "이메일 인증을 진행하세요."
+                    },
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/verify-email-code": {
+      "post": {
+        "summary": "이메일 인증코드 확인",
+        "description": "이메일 인증코드를 확인하고 사용자를 생성합니다",
+        "tags": ["사용자"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmailVerifyRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "이메일 인증 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/profile": {
+      "put": {
+        "summary": "프로필 업데이트",
+        "description": "사용자 프로필을 업데이트합니다",
+        "tags": ["사용자"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserProfileUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "프로필 업데이트 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "프로필이 업데이트되었습니다."
+                    },
+                    "user": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "email": {
+                          "type": "string",
+                          "format": "email"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "nickname": {
+                          "type": "string"
+                        },
+                        "role": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/contents": {
+      "get": {
+        "summary": "콘텐츠 목록 조회",
+        "description": "전체 콘텐츠 목록을 조회합니다",
+        "tags": ["콘텐츠"],
+        "responses": {
+          "200": {
+            "description": "성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Content"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "서버 내부 오류",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "detail": {
+                      "type": "string",
+                      "example": "데이터베이스 연결 오류"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "콘텐츠 생성",
+        "description": "새로운 콘텐츠를 생성합니다",
+        "tags": ["콘텐츠"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContentCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "콘텐츠 생성 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Content"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증 실패",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "detail": {
+                      "type": "string",
+                      "example": "유효하지 않은 액세스 토큰"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "서버 내부 오류",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "detail": {
+                      "type": "string",
+                      "example": "콘텐츠 생성 중 오류가 발생했습니다."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/contents/{content_id}": {
+      "get": {
+        "summary": "콘텐츠 상세 조회",
+        "description": "ID로 특정 콘텐츠를 조회합니다",
+        "tags": ["콘텐츠"],
+        "parameters": [
+          {
+            "name": "content_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "콘텐츠 ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Content"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "콘텐츠를 찾을 수 없음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "detail": {
+                      "type": "string",
+                      "example": "콘텐츠를 찾을 수 없습니다."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "콘텐츠 수정",
+        "description": "기존 콘텐츠를 수정합니다",
+        "tags": ["콘텐츠"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "content_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "콘텐츠 ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContentCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "콘텐츠 수정 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Content"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증 실패"
+          },
+          "404": {
+            "description": "콘텐츠를 찾을 수 없음"
+          }
+        }
+      },
+      "delete": {
+        "summary": "콘텐츠 삭제",
+        "description": "콘텐츠를 삭제합니다",
+        "tags": ["콘텐츠"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "content_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "콘텐츠 ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "콘텐츠 삭제 성공"
+          },
+          "401": {
+            "description": "인증 실패"
+          },
+          "404": {
+            "description": "콘텐츠를 찾을 수 없음"
+          }
+        }
+      }
+    },
+    "/api/contents/user/{user_id}": {
+      "get": {
+        "summary": "사용자별 콘텐츠 조회",
+        "description": "특정 사용자의 콘텐츠 목록을 조회합니다",
+        "tags": ["콘텐츠"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "사용자 ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Content"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증 실패"
+          }
+        }
+      }
+    },
+    "/api/calendar": {
+      "get": {
+        "summary": "캘린더 작업 목록 조회",
+        "description": "사용자의 캘린더 작업 목록을 조회합니다",
+        "tags": ["캘린더"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CalendarTaskList"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "캘린더 작업 생성",
+        "description": "새로운 캘린더 작업을 생성합니다",
+        "tags": ["캘린더"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CalendarTaskCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "캘린더 작업 생성 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CalendarTaskRead"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/calendar/{task_id}": {
+      "put": {
+        "summary": "캘린더 작업 수정",
+        "description": "기존 캘린더 작업을 수정합니다",
+        "tags": ["캘린더"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "작업 ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CalendarTaskUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "캘린더 작업 수정 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CalendarTaskRead"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "작업을 찾을 수 없음"
+          }
+        }
+      },
+      "delete": {
+        "summary": "캘린더 작업 삭제",
+        "description": "캘린더 작업을 삭제합니다",
+        "tags": ["캘린더"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "작업 ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "캘린더 작업 삭제 성공"
+          },
+          "404": {
+            "description": "작업을 찾을 수 없음"
+          }
+        }
+      }
+    },
+    "/api/calendar/recommend": {
+      "post": {
+        "summary": "캘린더 작업 추천",
+        "description": "콘텐츠 유형과 플랫폼에 따른 작업 일정을 추천합니다",
+        "tags": ["캘린더"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CalendarRecommendRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "추천 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CalendarRecommendResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/planner": {
+      "get": {
+        "summary": "일일 계획 목록 조회",
+        "description": "사용자의 일일 계획 목록을 조회합니다",
+        "tags": ["플래너"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DailyPlanList"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "일일 계획 생성",
+        "description": "새로운 일일 계획을 생성합니다",
+        "tags": ["플래너"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DailyPlanCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "일일 계획 생성 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DailyPlanRead"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/hashtags/recommend": {
+      "post": {
+        "summary": "해시태그 추천",
+        "description": "키워드와 플랫폼에 따른 해시태그를 추천합니다",
+        "tags": ["해시태그"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HashtagRecommendRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "해시태그 추천 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HashtagRecommendResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/title/analyze": {
+      "post": {
+        "summary": "제목 분석",
+        "description": "콘텐츠 제목을 분석하고 최적화 제안을 제공합니다",
+        "tags": ["제목 분석"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TitleAnalyzeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "제목 분석 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TitleAnalyzeResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/feedback": {
+      "get": {
+        "summary": "피드백 목록 조회",
+        "description": "사용자의 피드백 목록을 조회합니다",
+        "tags": ["피드백"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeedbackList"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "피드백 생성",
+        "description": "새로운 피드백을 생성합니다",
+        "tags": ["피드백"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FeedbackCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "피드백 생성 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeedbackRead"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "UserLoginRequest": {
+        "type": "object",
+        "required": ["email", "password"],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "사용자 이메일"
+          },
+          "password": {
+            "type": "string",
+            "description": "사용자 비밀번호"
+          }
+        }
+      },
+      "AuthResponse": {
+        "type": "object",
+        "properties": {
+          "access_token": {
+            "type": "string",
+            "description": "액세스 토큰"
+          },
+          "token_type": {
+            "type": "string",
+            "example": "bearer"
+          },
+          "user": {
+            "$ref": "#/components/schemas/UserInfo"
+          }
+        }
+      },
+      "GoogleLoginRequest": {
+        "type": "object",
+        "required": ["id_token"],
+        "properties": {
+          "id_token": {
+            "type": "string",
+            "description": "구글 ID 토큰"
+          }
+        }
+      },
+      "GoogleLoginResponse": {
+        "type": "object",
+        "properties": {
+          "access_token": {
+            "type": "string",
+            "description": "액세스 토큰"
+          },
+          "token_type": {
+            "type": "string",
+            "example": "bearer"
+          },
+          "user": {
+            "$ref": "#/components/schemas/UserInfo"
+          }
+        }
+      },
+      "LogoutResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "로그아웃 메시지"
+          }
+        }
+      },
+      "UserInfo": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "name": {
+            "type": "string"
+          },
+          "nickname": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "default": "youtuber"
+          },
+          "profile_image": {
+            "type": "string"
+          },
+          "password_hash": {
+            "type": "string",
+            "description": "해시된 비밀번호 (응답에서는 제외됨)"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "is_deleted": {
+            "type": "boolean"
+          }
+        }
+      },
+      "UserCreate": {
+        "type": "object",
+        "required": ["email", "name", "password"],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "name": {
+            "type": "string"
+          },
+          "nickname": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "default": "youtuber"
+          },
+          "profile_image": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        }
+      },
+      "UserRoleUpdateRequest": {
+        "type": "object",
+        "required": ["roles"],
+        "properties": {
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "UserProfileUpdateRequest": {
+        "type": "object",
+        "required": ["name", "nickname"],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "nickname": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "default": "youtuber"
+          }
+        }
+      },
+      "UserRegisterRequest": {
+        "type": "object",
+        "required": ["email", "password"],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "password": {
+            "type": "string"
+          }
+        }
+      },
+      "EmailRequest": {
+        "type": "object",
+        "required": ["email"],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          }
+        }
+      },
+      "EmailVerifyRequest": {
+        "type": "object",
+        "required": ["email", "code"],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "code": {
+            "type": "string"
+          }
+        }
+      },
+      "Content": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "upload_time": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "hashtags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "is_published": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ContentCreate": {
+        "type": "object",
+        "required": ["title"],
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "hashtags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "is_published": {
+            "type": "boolean",
+            "default": false
+          }
+        }
+      },
+      "CalendarTaskCreate": {
+        "type": "object",
+        "required": ["title", "start_time"],
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "start_time": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "end_time": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "type": "string",
+            "default": "준비"
+          }
+        }
+      },
+      "CalendarTaskUpdate": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "start_time": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "end_time": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "type": "string"
+          }
+        }
+      },
+      "CalendarTaskRead": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "start_time": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "end_time": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "CalendarTaskList": {
+        "type": "object",
+        "properties": {
+          "tasks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CalendarTaskRead"
+            }
+          }
+        }
+      },
+      "CalendarRecommendRequest": {
+        "type": "object",
+        "required": ["content_type", "platform"],
+        "properties": {
+          "content_type": {
+            "type": "string"
+          },
+          "platform": {
+            "type": "string"
+          },
+          "duration": {
+            "type": "integer"
+          },
+          "complexity": {
+            "type": "string",
+            "default": "medium"
+          }
+        }
+      },
+      "CalendarRecommendResponse": {
+        "type": "object",
+        "properties": {
+          "recommended_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "estimated_duration": {
+            "type": "integer"
+          }
+        }
+      },
+      "DailyPlanCreate": {
+        "type": "object",
+        "required": ["plan_date", "tasks"],
+        "properties": {
+          "plan_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "tasks": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "DailyPlanRead": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "plan_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "tasks": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "DailyPlanList": {
+        "type": "object",
+        "properties": {
+          "plans": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DailyPlanRead"
+            }
+          }
+        }
+      },
+      "HashtagRecommendRequest": {
+        "type": "object",
+        "required": ["keywords"],
+        "properties": {
+          "keywords": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "platform": {
+            "type": "string",
+            "default": "youtube"
+          },
+          "limit": {
+            "type": "integer",
+            "default": 10
+          }
+        }
+      },
+      "HashtagRecommendResponse": {
+        "type": "object",
+        "properties": {
+          "hashtags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "relevance_scores": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "platform": {
+            "type": "string"
+          }
+        }
+      },
+      "TitleAnalyzeRequest": {
+        "type": "object",
+        "required": ["title", "platform"],
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "platform": {
+            "type": "string"
+          },
+          "content_type": {
+            "type": "string",
+            "default": "video"
+          }
+        }
+      },
+      "TitleAnalyzeResponse": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "click_through_rate_score": {
+            "type": "number"
+          },
+          "engagement_score": {
+            "type": "number"
+          },
+          "suggestions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "feedback": {
+            "type": "string"
+          },
+          "platform_optimized": {
+            "type": "boolean"
+          }
+        }
+      },
+      "FeedbackCreate": {
+        "type": "object",
+        "required": ["content"],
+        "properties": {
+          "content": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string",
+            "default": "general"
+          },
+          "priority": {
+            "type": "string",
+            "default": "medium"
+          }
+        }
+      },
+      "FeedbackRead": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "content": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "priority": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "type": "string"
+          }
+        }
+      },
+      "FeedbackList": {
+        "type": "object",
+        "properties": {
+          "feedbacks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FeedbackRead"
+            }
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "인증",
+      "description": "사용자 인증 관련 API"
+    },
+    {
+      "name": "사용자",
+      "description": "사용자 관리 관련 API"
+    },
+    {
+      "name": "콘텐츠",
+      "description": "콘텐츠 관리 관련 API"
+    },
+    {
+      "name": "캘린더",
+      "description": "캘린더 작업 관리 관련 API"
+    },
+    {
+      "name": "플래너",
+      "description": "일일 계획 관리 관련 API"
+    },
+    {
+      "name": "해시태그",
+      "description": "해시태그 추천 관련 API"
+    },
+    {
+      "name": "제목 분석",
+      "description": "콘텐츠 제목 분석 관련 API"
+    },
+    {
+      "name": "피드백",
+      "description": "피드백 관리 관련 API"
+    }
+  ]
+}
