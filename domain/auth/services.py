@@ -1,4 +1,5 @@
 from domain.auth.schemas import UserRegisterRequest, UserLoginRequest, AuthResponse, GoogleLoginRequest, GoogleLoginResponse, LogoutResponse, UserInfo
+from domain.users.schemas import UserProfileUpdateRequest
 from uuid import uuid4
 from datetime import datetime
 from infrastructure.security import create_access_token
@@ -9,7 +10,7 @@ from sqlalchemy.orm import Session
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-def update_user_profile(user_id: str, profile, db: Session):
+def update_user_profile(user_id: str, profile: "UserProfileUpdateRequest", db: Session):
     user = db.query(UserModel).filter(UserModel.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="사용자를 찾을 수 없습니다.")

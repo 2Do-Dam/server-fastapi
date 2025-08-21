@@ -7,10 +7,7 @@ class UserRegisterRequest(BaseModel):
     email: EmailStr
     password: str
 
-class UserProfileUpdateRequest(BaseModel):
-    name: str
-    nickname: str
-    role: Optional[str] = "youtuber"
+
 
 class UserLoginRequest(BaseModel):
     email: EmailStr

@@ -21,6 +21,11 @@ class User(UserBase):
     class Config:
         from_attributes = True
 
+class UserProfileUpdateRequest(BaseModel):
+    name: str
+    nickname: str
+    role: Optional[str] = "youtuber"
+
 class UserRoleUpdateRequest(BaseModel):
     roles: List[str]
 

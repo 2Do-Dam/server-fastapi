@@ -37,7 +37,7 @@ def get_user_by_email(email: str, db: Session) -> Optional[User]:
     user = user_repo.get_user_by_email(email)
     if not user:
         raise HTTPException(status_code=404, detail="사용자를 찾을 수 없습니다.")
-    return User.from_orm(user)
+    return User.model_validate(user)
 
 def update_user_roles(user_id: UUID, roles: List[str], db: Session) -> bool:
     """사용자 역할 업데이트"""
