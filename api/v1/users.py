@@ -92,12 +92,12 @@ def send_email(to_email, code):
 
 router = APIRouter()
 
-@router.get("/", response_model=List[User])
-def list_users_api(db: Session = Depends(get_db)):
-    return list_users(db)
+@router.get("/", response_model=User)
+def list_users_api(db: Session = Depends(get_db), current_user=Depends(get_current_user)):
+    return get_user_by_id(current_user["user_id"], db)
 
 @router.post("/", response_model=User)
-def create_user_api(user: UserCreate, db: Session = Depends(get_db)):
+def create_user_api(user: UserCreate, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
     return create_user(user, db)
 
 @router.post("/roles")

@@ -9,8 +9,8 @@ from sqlalchemy.orm import Session
 router = APIRouter()
 
 @router.get("/", response_model=List[Content])
-def list_contents_api(db: Session = Depends(get_db)):
-    return list_contents(db)
+def list_contents_api(db: Session = Depends(get_db), current_user=Depends(get_current_user)):
+    return list_contents(db, current_user["user_id"])
 
 @router.post("/", response_model=Content)
 def create_content_api(content: ContentCreate, db: Session = Depends(get_db), current_user=Depends(get_current_user)):

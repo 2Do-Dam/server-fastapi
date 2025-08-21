@@ -5,10 +5,10 @@ from sqlalchemy.orm import Session
 from repository.content_repository import ContentRepository
 from fastapi import HTTPException
 
-def list_contents(db: Session) -> List[Content]:
-    """모든 콘텐츠 목록 조회"""
+def list_contents(db: Session, user_id: UUID) -> List[Content]:
+    """사용자별 콘텐츠 목록 조회"""
     content_repo = ContentRepository(db)
-    contents = content_repo.get_all_contents()
+    contents = content_repo.get_contents_by_user_id(user_id)
     return [Content.model_validate(content) for content in contents]
 
 def create_content(content: ContentCreate, user_id: UUID, db: Session) -> Content:

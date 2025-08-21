@@ -155,18 +155,36 @@
     },
     "/api/users": {
       "get": {
-        "summary": "사용자 목록 조회",
-        "description": "전체 사용자 목록을 조회합니다",
+        "summary": "현재 로그인된 사용자 정보 조회",
+        "description": "현재 로그인된 사용자의 정보를 조회합니다",
         "tags": ["사용자"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
         "responses": {
           "200": {
             "description": "성공",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/User"
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증되지 않은 요청",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "detail": {
+                      "type": "string",
+                      "example": "Not authenticated"
+                    }
                   }
                 }
               }
@@ -192,8 +210,13 @@
       },
       "post": {
         "summary": "사용자 생성",
-        "description": "새로운 사용자를 생성합니다",
+        "description": "새로운 사용자를 생성합니다 (인증 필요)",
         "tags": ["사용자"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
